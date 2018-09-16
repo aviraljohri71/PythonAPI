@@ -18,10 +18,10 @@ active_get_count = 0
 active_post_count = 0
 active_put_count = 0
 active_delete_count = 0
-get_dict = []
-post_dict = []
-put_dict = []
-del_dict = []
+get_dict = {}
+post_dict = {}
+put_dict = {}
+del_dict = {}
 
 class serve_requests:
 
@@ -36,7 +36,9 @@ class serve_requests:
         active_get_count = active_get_count + 1
         time.sleep(15)
         endd = datetime.now()
-        #get_dict[dd] = endd
+        global get_dict
+        get_dict[dd] = endd
+        print(get_dict.items())
 
         response = {
             "time": str(dd),
@@ -122,24 +124,27 @@ class list_stats:
         for key, value in dic.iteritems():
             if value >= hour_time and value <= curr_time:
                 hr_count = hr_count+1
-                hr_avg = hr_avg + (value - key)
+                hr_avg = hr_avg + ((value - key).total_seconds()) /60
 
         for key, value in dic.iteritems():
             if value >= min_time and value <= curr_time:
                 min_count = min_count+1
-                min_avg = min_avg + (value - key)
-                
-        hr_avg = hr_avg/hr_count
-        min_avg = min_avg/min_count
+                min_avg = min_avg + ((value - key).total_seconds()) /60
+           
+        if hr_count != 0:        
+            hr_avg = hr_avg/hr_count
+        
+        if min_count != 0:
+            min_avg = min_avg/min_count
 
         min_data = {
-            count : min_count,
-            avg : min_avg
+            "count" : min_count,
+            "avg" : min_avg
         }
 
         hr_data = {
-            count : hr_count,
-            avg : hr_avg
+            "count" : hr_count,
+            "avg" : hr_avg
         }
 
         return  min_data, hr_data
@@ -148,42 +153,37 @@ class list_stats:
         curr_time = datetime.now()
         min_time = curr_time - timedelta(minutes=1)
         hour_time = curr_time - timedelta(minutes=60)
-        
-        get_min_data, get_hr_data = find_http_data(get_dict, hour_time, min_time, curr_time)
-        post_min_data, post_hr_data = find_http_data(post_dict, hour_time, min_time, curr_time)
-        put_min_data, put_hr_data = find_http_data(put_dict, hour_time, min_time, curr_time)
-        del_min_data, del_hr_data = find_http_data(del_dict, hour_time, min_time, curr_time)
+        global get_dict
+        print(get_dict.items())
+        get_min_data, get_hr_data = self.find_http_data(get_dict, hour_time, min_time, curr_time)
+        post_min_data, post_hr_data = self.find_http_data(post_dict, hour_time, min_time, curr_time)
+        put_min_data, put_hr_data = self.find_http_data(put_dict, hour_time, min_time, curr_time)
+        del_min_data, del_hr_data = self.find_http_data(del_dict, hour_time, min_time, curr_time)
 
 
-        active_count = { get_count : active_get_count,
-            post_count : active_post_count,
-            put_count : active_put_count,
-            delete_count : active_delete_count
+        active_count = { "get_count" : active_get_count,
+            "post_count" : active_post_count,
+            "put_count" : active_put_count,
+            "delete_count" : active_delete_count
         }
 
-        http_min_data = { get_min_data : get_min_data,
-        post_min_data : post_min_data,
-        put_min_data : put_min_data,
-        del_min_data : del_min_data
+        http_min_data = { "get_min_data" : get_min_data,
+        "post_min_data" : post_min_data,
+        "put_min_data" : put_min_data,
+        "del_min_data" : del_min_data
         }
 
-        http_hr_data = { get_hr_data : get_hr_data,
-        post_hr_data : post_hr_data,
-        put_hr_data : put_hr_data,
-        del_hr_data : del_hr_data
-        }
-
-        http_hr_data = { get_data : get_data,
-        post_data : post_data,
-        put_data : put_data,
-        del_data : del_data
+        http_hr_data = { "get_hr_data" : get_hr_data,
+        "post_hr_data" : post_hr_data,
+        "put_hr_data" : put_hr_data,
+        "del_hr_data" : del_hr_data
         }
 
         response = {
-            service_count : service_count,
-            active_count : active_count,
-            http_min_data : http_min_data,
-            http_hr_data : http_hr_data
+            "service_count" : service_count,
+            "active_count" : active_count,
+            "http_min_data" : http_min_data,
+            "http_hr_data" : http_hr_data
         }
         return response
 
