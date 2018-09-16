@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import web
 import time
+import json
 
 from datetime import datetime  
 from datetime import timedelta  
@@ -38,80 +39,80 @@ class serve_requests:
         endd = datetime.now()
         global get_dict
         get_dict[dd] = endd
-        print(get_dict.items())
-
         response = {
             "time": str(dd),
-            "query_type": "GET",
-            "headers": "NaN",
-            "path": "/process/",
-            "query": "NaN",
+            "query_type": web.ctx.method,
+            "headers": web.ctx.env.get('CONTENT_TYPE'),
+            "path": web.ctx.path,
+            "query": web.ctx.query,
             "body": "NaN",
             "duration": str(endd - dd)
         }
-        return response
+        return json.dumps(response, indent=2)
 
     
     def POST(self):
         dd = datetime.now()
         global service_count
         service_count = service_count + 1
-        global active_get_count
+        global active_post_count
         active_post_count = active_post_count + 1
         time.sleep(15)
         endd = datetime.now()
-        #get_dict[dd] = endd
-
+        post_dict[dd] = endd
+        print(post_dict.items())
         response = {
             "time": str(dd),
-            "query_type": "POST",
-            "headers": "NaN",
-            "path": "/process/",
-            "query": "NaN",
-            "body": "NaN",
+            "query_type": web.ctx.method,
+            "headers": web.ctx.env.get('CONTENT_TYPE'),
+            "path": web.ctx.path,
+            "query": web.ctx.query,
+            "body": web.data(),
             "duration": str(endd - dd)
         }
-        return response
+        return json.dumps(response, indent=2)
 
     
     def PUT(self):
         dd = datetime.now()
         global service_count
-        service_count = service_count + 1
-        active_put_count = increment(active_put_count)
+        service_count = self.increment(service_count)
+        global active_put_count
+        active_put_count = self.increment(active_put_count)
         time.sleep(15)
         endd = datetime.now()
         put_dict[dd] = endd
         response = {
-            time: dd,
-            method: "PUT",
-            headers: "NaN",
-            path: "/process/",
-            query: "NaN",
-            body: "NaN",
-            duration: endd - dd
+            "time": str(dd),
+            "query_type": web.ctx.method,
+            "headers": web.ctx.env.get('CONTENT_TYPE'),
+            "path": web.ctx.path,
+            "query": web.ctx.query,
+            "body": web.data(),
+            "duration": str(endd - dd)
         }
-        return response
+        return json.dumps(response, indent=2)
 
     
     def DELETE(self):
         dd = datetime.now()
         global service_count
         service_count = service_count + 1
-        active_delete_count = increment(active_delete_count)
+        global active_delete_count
+        active_delete_count = self.increment(active_delete_count)
         time.sleep(15)
         endd = datetime.now()
         del_dict[dd] = endd
         response = {
-            time: dd,
-            method: "DELET",
-            headers: "NaN",
-            path: "/process/",
-            query: "NaN",
-            body: "NaN",
-            duration: endd - dd
+            "time": str(dd),
+            "query_type": web.ctx.method,
+            "headers": web.ctx.env.get('CONTENT_TYPE'),
+            "path": web.ctx.path,
+            "query": web.ctx.query,
+            "body": web.data(),
+            "duration": str(endd - dd)
         }
-        return response
+        return json.dumps(response, indent=2)
 
 
 class list_stats:
@@ -185,8 +186,7 @@ class list_stats:
             "http_min_data" : http_min_data,
             "http_hr_data" : http_hr_data
         }
-        return response
-
+        return json.dumps(response, indent=2)
 
 if __name__ == "__main__":
     app.run()
